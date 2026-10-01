@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeszShikii — Teknisi WiFi & Anime Lovers</title>
+  <style>
+    /* ====== PENGATURAN DASAR ====== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0f0f1a;
+      --bg-card: #1a1a2e;
+      --neon-ungu: #a855f7;
+      --neon-cyan: #22d3ee;
+      --neon-pink: #ec4899;
+      --ml-gold: #f5c542;
+      --hijau-terminal: #22c55e;
+      --teks: #e2e8f0;
+      --teks-redup: #94a3b8;
+      --mono: 'Consolas', 'Courier New', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    html, body { overflow-x: hidden; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--teks);
+      line-height: 1.7;
+    }
+
+    /* ====== BOOT SCREEN (TAMPILAN AWAL) ====== */
+    #boot-screen {
+      position: fixed; inset: 0;
+      background: #050508;
+      z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: opacity .6s;
+      animation: boot-auto 5s forwards; /* pengaman: hilang sendiri walau JS mati */
+    }
+    @keyframes boot-auto { to { opacity: 0; visibility: hidden; } }
+    #boot-screen.selesai { opacity: 0; pointer-events: none; }
+    .boot-isi {
+      font-family: var(--mono);
+      color: var(--hijau-terminal);
+      font-size: 15px;
+      min-width: 300px;
+      padding: 20px;
+    }
+    .boot-skip { color: #475569; font-size: 12px; margin-top: 22px; }
+
+    /* ====== LANGIT MALAM + MATRIX ====== */
+    #matriks {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -3;
+      pointer-events: none;
+    }
+    #langit {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -2;
+      pointer-events: none;
+    }
+    .nebula {
+      position: fixed; inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 15% 25%, rgba(168,85,247,.14), transparent 40%),
+        radial-gradient(circle at 85% 75%, rgba(34,211,238,.11), transparent 40%),
+        radial-gradient(circle at 50% 90%, rgba(236,72,153,.09), transparent 45%),
+        radial-gradient(circle at 75% 15%, rgba(168,85,247,.08), transparent 35%);
+      background-size: 180% 180%;
+      animation: nebula-bergerak 30s ease-in-out infinite alternate;
+    }
+    @keyframes nebula-bergerak {
+      0%   { background-position: 0% 0%; }
+      50%  { background-position: 60% 40%; }
+      100% { background-position: 100% 100%; }
+    }
+    .bintang-jatuh {
+      position: fixed;
+      width: 110px; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.9), transparent);
+      border-radius: 2px;
+      z-index: -1;
+      pointer-events: none;
+      animation: jatuh 1.2s ease-in forwards;
+    }
+    @keyframes jatuh {
+      0%   { transform: translate(0, 0) rotate(-40deg); opacity: 0; }
+      10%  { opacity: 1; }
+      100% { transform: translate(-320px, 260px) rotate(-40deg); opacity: 0; }
+    }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+    section { padding: 70px 0; }
+
+    .judul { text-align: center; font-size: 30px; margin-bottom: 12px; color: #fff; }
+    .judul span { color: var(--neon-cyan); }
+    /* Sub-judul gaya komentar kode */
+    .sub-judul {
+      text-align: center;
+      color: var(--teks-redup);
+      margin-bottom: 45px;
+      font-size: 14px;
+      font-family: var(--mono);
+      letter-spacing: .5px;
+    }
+
+    /* ====== NAVBAR ====== */
+    nav {
+      background: rgba(15,15,26,.85);
+      backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid #2a2a4a;
+    }
+    .nav-wrap {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px; max-width: 1000px; margin: 0 auto;
+    }
+    .logo { font-weight: bold; font-size: 19px; color: #fff; font-family: var(--mono); }
+    .logo span { color: var(--neon-ungu); }
+    .cursor-logo {
+      color: var(--neon-cyan);
+      font-weight: normal;
+      animation: kedip 1s steps(1) infinite;
+    }
+    @keyframes kedip { 50% { opacity: 0; } }
+    .menu { display: flex; gap: 22px; list-style: none; }
+    .menu a { color: var(--teks-redup); text-decoration: none; font-size: 14.5px; transition: .3s; }
+    .menu a:hover { color: var(--neon-cyan); }
+    .hamburger { display: none; background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; }
+
+    /* ====== HERO ====== */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      text-align: center; padding: 80px 20px 60px;
+    }
+    .hero .avatar {
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      border: 4px solid var(--neon-ungu);
+      box-shadow: 0 0 30px rgba(168,85,247,.5);
+      margin-bottom: 24px;
+      object-fit: cover;
+    }
+    .hero .sapaan { color: var(--neon-cyan); font-size: 15px; letter-spacing: 2px; text-transform: uppercase; font-family: var(--mono); }
+    /* Glitch efek pada nama — sesekali menyala */
+    .hero h1 {
+      font-size: 42px; margin: 10px 0; color: #fff;
+      animation: glitch 5s infinite;
+    }
+    @keyframes glitch {
+      0%, 90%, 96%, 100% { filter: none; transform: translateX(0); }
+      91% { filter: drop-shadow(2px 0 rgba(236,72,153,.8)) drop-shadow(-2px 0 rgba(34,211,238,.8)); transform: translateX(1.5px); }
+      93% { filter: drop-shadow(-2px 0 rgba(236,72,153,.8)) drop-shadow(2px 0 rgba(34,211,238,.8)); transform: translateX(-1.5px); }
+      95% { filter: none; transform: translateX(0); }
+    }
+    .hero h1 span {
+      background: linear-gradient(90deg, var(--neon-ungu), var(--neon-cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .gelar { font-size: 19px; color: var(--teks-redup); margin-bottom: 24px; letter-spacing: 1px; font-family: var(--mono); }
+    .gelar b { color: var(--neon-cyan); }
+
+    .badge-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 26px; }
+    .badge {
+      background: rgba(26,26,46,.8);
+      border: 1px solid #2a2a4a;
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-size: 14px;
+      color: var(--teks);
+    }
+
+    /* ====== WIDGET STATUS JARINGAN ====== */
+    .status-jaringan {
+      display: flex; flex-wrap: wrap;
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(10,10,20,.85);
+      max-width: 560px; width: 100%;
+      margin-bottom: 26px;
+    }
+    .sj-item {
+      flex: 1; min-width: 130px;
+      padding: 12px 10px;
+      border-right: 1px solid #2a2a4a;
+      font-family: var(--mono);
+    }
+    .sj-item:last-child { border-right: none; }
+    .sj-label { display: block; font-size: 11px; color: var(--teks-redup); margin-bottom: 2px; }
+    .sj-nilai { font-size: 14px; color: var(--hijau-terminal); font-weight: bold; }
+    .dot-online {
+      display: inline-block; width: 8px; height: 8px;
+      background: var(--hijau-terminal); border-radius: 50%;
+      margin-right: 5px;
+      box-shadow: 0 0 8px var(--hijau-terminal);
+      animation: kedip 1.2s infinite;
+    }
+
+    /* ====== TERMINAL ====== */
+    .terminal {
+      width: 100%; max-width: 520px;
+      background: rgba(8,8,16,.92);
+      border: 1px solid #2a2a4a;
+      border-radius: 10px;
+      overflow: hidden;
+      text-align: left;
+      box-shadow: 0 10px 40px rgba(0,0,0,.45);
+      margin-bottom: 30px;
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,.05);
+      padding: 9px 14px;
+    }
+    .t-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .t-dot.merah { background: #ff5f57; }
+    .t-dot.kuning { background: #febc2e; }
+    .t-dot.hijau { background: #28c840; }
+    .t-judul { margin-left: 8px; font-size: 12px; color: var(--teks-redup); font-family: var(--mono); }
+    .terminal-isi {
+      padding: 16px;
+      font-family: var(--mono);
+      font-size: 13.5px;
+      min-height: 160px;
+    }
+    .terminal-isi .perintah { color: #fff; }
+    .terminal-isi .perintah::first-letter { color: var(--hijau-terminal); }
+    .terminal-isi .output { color: var(--hijau-terminal); opacity: .85; }
+
+    .btn {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--neon-ungu), var(--neon-pink));
+      color: #fff; padding: 13px 36px;
+      border-radius: 30px; text-decoration: none;
+      font-weight: bold; transition: .3s;
+      box-shadow: 0 0 20px rgba(168,85,247,.4);
+    }
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 0 35px rgba(236,72,153,.6); }
+
+    /* ====== TENTANG ====== */
+    .tentang-box {
+      background: rgba(26,26,46,.85);
+      border: 1px solid #2a2a4a;
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 750px;
+      margin: 0 auto;
+      font-size: 16.5px;
+      text-align: center;
+    }
+    .tentang-box b { color: var(--neon-cyan); }
+
+    /* ====== ANIME FAVORIT ====== */
+    .anime-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 18px;
+    }
+    .anime-card {
+      background: rgba(26,26,46,.9);
+      border: 1px solid #2a2a4a;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: .3s;
+    }
+    .anime-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: var(--neon-pink);
+      box-shadow: 0 0 25px rgba(236,72,153,.25);
+    }
+    .poster {
+      width: 100%; height: 230px;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px; text-align: center; padding: 12px;
+      font-size: 16px; color: var(--neon-ungu);
+      font-weight: bold;
+    }
+    .poster.loading::after {
+      content: "Memuat poster...";
+      font-size: 11px; font-weight: normal;
+      color: var(--teks-redup);
+    }
+    .poster-img {
+      width: 100%; height: 230px;
+      object-fit: cover; display: block;
+    }
+    .anime-card .info { padding: 14px; }
+    .anime-card h3 { font-size: 15px; color: #fff; }
+    .anime-card .genre { font-size: 12px; color: var(--neon-ungu); margin-top: 4px; }
+    .anime-card .rating { font-size: 12.5px; color: var(--teks-redup); margin-top: 4px; }
+
+    /* ====== GAME / MOBILE LEGENDS + ANIMASI KOMBO ====== */
+    .ml-card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--bg-card), #16213e);
+      border: 1px solid #2a2a4a;
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 650px;
+      margin: 0 auto;
+      text-align: center;
+      transition: border-color .3s;
+    }
+    .ml-card:hover { border-color: var(--ml-gold); box-shadow: 0 0 30px rgba(245,197,66,.2); }
+
+    .ml-card::before {
+      content: "";
+      position: absolute;
+      inset: -50%;
+      background: linear-gradient(45deg,
+        rgba(168,85,247,.16) 0%,
+        rgba(245,197,66,.13) 25%,
+        rgba(34,211,238,.16) 50%,
+        rgba(236,72,153,.13) 75%,
+        rgba(168,85,247,.16) 100%);
+      background-size: 300% 300%;
+      animation: ml-gradien 10s ease infinite;
+      z-index: 0;
+    }
+    @keyframes ml-gradien {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .ml-card::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -80%;
+      width: 50%; height: 100%;
+      background: linear-gradient(100deg,
+        transparent 0%,
+        rgba(255,255,255,.06) 40%,
+        rgba(255,255,255,.16) 50%,
+        rgba(255,255,255,.06) 60%,
+        transparent 100%);
+      transform: skewX(-20deg);
+      animation: ml-kilau 5.5s ease-in-out infinite;
+      z-index: 1;
+      pointer-events: none;
+    }
+    @keyframes ml-kilau {
+      0%, 55% { left: -80%; }
+      100%    { left: 160%; }
+    }
+
+    .ml-card > * { position: relative; z-index: 2; }
+
+    .partikel {
+      position: absolute;
+      bottom: -8px;
+      border-radius: 50%;
+      opacity: 0;
+      z-index: 1;
+      pointer-events: none;
+      animation: partikel-naik linear infinite;
+    }
+    @keyframes partikel-naik {
+      0%   { transform: translateY(0) scale(1);       opacity: 0; }
+      15%  { opacity: .9; }
+      85%  { opacity: .4; }
+      100% { transform: translateY(-420px) scale(.3); opacity: 0; }
+    }
+
+    .ml-logo { font-size: 26px; font-weight: bold; color: #fff; letter-spacing: 1px; }
+    .ml-logo span {
+      color: var(--ml-gold);
+      animation: ml-glow 3s ease-in-out infinite;
+    }
+    @keyframes ml-glow {
+      0%, 100% { text-shadow: 0 0 8px rgba(245,197,66,.4); }
+      50%      { text-shadow: 0 0 22px rgba(245,197,66,.9); }
+    }
+    .ml-sub { color: var(--teks-redup); font-size: 13px; letter-spacing: 3px; margin-top: 4px; }
+
+    .ml-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .ml-stat {
+      background: rgba(255,255,255,.05);
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 16px 10px;
+      transition: .3s;
+    }
+    .ml-stat:hover { border-color: var(--ml-gold); }
+    .ml-stat .nilai { font-size: 17px; color: var(--ml-gold); font-weight: bold; }
+    .ml-stat .label { font-size: 12px; color: var(--teks-redup); margin-top: 4px; }
+
+    .hero-pills { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .pill {
+      background: rgba(34,211,238,.08);
+      border: 1px solid rgba(34,211,238,.3);
+      color: var(--neon-cyan);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    /* ====== RUTINITAS HARIAN ====== */
+    .rutinitas { max-width: 650px; margin: 0 auto; }
+    .waktu-item {
+      display: flex; gap: 18px;
+      margin-bottom: 20px;
+      background: rgba(26,26,46,.85);
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 18px 20px;
+      transition: .3s;
+    }
+    .waktu-item:hover { border-color: var(--neon-cyan); }
+    .waktu-item .jam { color: var(--neon-cyan); font-weight: bold; min-width: 90px; font-size: 15px; font-family: var(--mono); }
+    .waktu-item .kegiatan h4 { color: #fff; font-size: 15.5px; }
+    .waktu-item .kegiatan p { font-size: 13.5px; color: var(--teks-redup); }
+
+    /* ====== KONTAK ====== */
+    .kontak { text-align: center; }
+    .sosmed-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .sosmed {
+      background: rgba(26,26,46,.85);
+      border: 1px solid #2a2a4a;
+      color: var(--teks);
+      padding: 12px 24px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-size: 14.5px;
+      transition: .3s;
+    }
+    .sosmed:hover { border-color: var(--neon-ungu); color: var(--neon-cyan); transform: translateY(-3px); }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--teks-redup);
+      font-size: 13.5px;
+      border-top: 1px solid #2a2a4a;
+      background: rgba(15,15,26,.7);
+      font-family: var(--mono);
+    }
+    footer span { color: var(--neon-pink); }
+
+    /* ====== RESPONSIF ====== */
+    @media (max-width: 768px) {
+      .hamburger { display: block; }
+      .menu {
+        display: none; position: absolute; top: 100%; left: 0;
+        width: 100%; background: var(--bg-card);
+        flex-direction: column; padding: 20px; gap: 16px;
+        border-bottom: 1px solid #2a2a4a;
+      }
+      .menu.aktif { display: flex; }
+      .hero h1 { font-size: 30px; }
+      .waktu-item { flex-direction: column; gap: 4px; }
+      .sj-item { min-width: 46%; }
+      .terminal-isi { font-size: 12px; min-height: 140px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ====== BOOT SCREEN ====== -->
+  <div id="boot-screen">
+    <div class="boot-isi">
+      <div id="boot-teks"></div>
+      <div class="boot-skip">[ klik di mana saja untuk skip ]</div>
+    </div>
+  </div>
+
+  <!-- ====== LAPISAN BACKGROUND ====== -->
+  <canvas id="matriks"></canvas>
+  <canvas id="langit"></canvas>
+  <div class="nebula"></div>
+
+  <!-- ====== MENU ====== -->
+  <nav>
+    <div class="nav-wrap">
+      <div class="logo">⚡ <span>DenzShikii</span>.exe<span class="cursor-logo">_</span></div>
+      <button class="hamburger" onclick="toggleMenu()">☰</button>
+      <ul class="menu" id="menu">
+        <li><a href="#tentang">Tentang</a></li>
+        <li><a href="#anime">Anime</a></li>
+        <li><a href="#game">Game</a></li>
+        <li><a href="#playlist">Playlist</a></li>
+        <li><a href="#harian">Daily Life</a></li>
+        <li><a href="#kontak">Kontak</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ====== HERO ====== -->
+  <header class="hero">
+  <img class="avatar" src="avatar.gif1.gif" alt="Avatar Desnal">
+    <div class="sapaan">Yo, Welcome to My World!</div>
+    <h1>Saya <span>Desnal Jerico Hutabarat</span></h1>
+    <div class="gelar"> &gt; <b>Teknisi WiFi</b></div>
+
+    <div class="badge-row">
+      <div class="badge">🎌 Anime Lovers</div>
+      <div class="badge">🎮 MLBB Player</div>
+      <div class="badge">🎧 Music is Life</div>
+    </div>
+
+    <!-- Widget status jaringan (biar makin kerasa teknisi WiFi) -->
+    <div class="status-jaringan">
+      <div class="sj-item">
+        <span class="sj-label">📶 Sinyal</span>
+        <span class="sj-nilai">Excellent ▂▄▆█</span>
+      </div>
+      <div class="sj-item">
+        <span class="sj-label">🏓 Ping</span>
+        <span class="sj-nilai" id="ping-nilai">12 ms</span>
+      </div>
+      <div class="sj-item">
+        <span class="sj-label">⏱️ Uptime</span>
+        <span class="sj-nilai">99.9%</span>
+      </div>
+      <div class="sj-item">
+        <span class="sj-label">🌐 Status</span>
+        <span class="sj-nilai"><span class="dot-online"></span>Online</span>
+      </div>
+    </div>
+
+    <!-- Terminal auto-typing -->
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="t-dot merah"></span>
+        <span class="t-dot kuning"></span>
+        <span class="t-dot hijau"></span>
+        <span class="t-judul">desnal@wifi: ~/hidup</span>
+      </div>
+      <div class="terminal-isi" id="terminal-isi"></div>
+    </div>
+
+    <a href="#tentang" class="btn">Kenali Aku Lebih Dalam ↓</a>
+  </header>
+
+  <!-- ====== TENTANG ====== -->
+  <section id="tentang">
+    <div class="container">
+      <h2 class="judul">Tentang <span>Saya</span></h2>
+      <p class="sub-judul">// sedikit cerita tentang aku</p>
+      <div class="tentang-box">
+        <p>
+          Sehari-hari saya seorang <b>Teknisi WiFi</b> 📶.
+          Diluar kerjaan, kamu bakal nemuin saya <b>marathon anime</b> 🎌,
+          <b>push rank Mobile Legends</b> 🎮, atau dengerin playlist yang lagunya kecepetan 🎧.
+        </p>
+        <br>
+        <p>Website ini cuma buat nunjukin dunia aku — kerjaan, hobi, dan lagu-lagunya.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== ANIME FAVORIT ====== -->
+  <section id="anime" style="background:rgba(19,19,36,.72);">
+    <div class="container">
+      <h2 class="judul">Anime <span>Favorit</span> 🎌</h2>
+      <p class="sub-judul">// nonton ini sambil rebahan habis kerja</p>
+      <div class="anime-grid">
+
+        <div class="anime-card" data-mal-id="21" data-nama="One Piece">
+          <div class="poster loading">🏴‍☠️<br>One Piece</div>
+          <div class="info">
+            <h3>One Piece</h3>
+            <div class="genre">Adventure • Action</div>
+            <div class="rating">⭐ 10/10 — Menuju One Piece!</div>
+          </div>
+        </div>
+
+        <div class="anime-card" data-mal-id="269" data-nama="Bleach">
+          <div class="poster loading">⚔️<br>Bleach</div>
+          <div class="info">
+            <h3>Bleach</h3>
+            <div class="genre">Action • Supernatural</div>
+            <div class="rating">⭐ 9.5/10 — Bankai! ⚔️</div>
+          </div>
+        </div>
+
+        <div class="anime-card" data-mal-id="37430" data-nama="Tensei Shitara Slime Datta Ken">
+          <div class="poster loading">🫧<br>Tensura</div>
+          <div class="info">
+            <h3>Tensei Shitara Slime Datta Ken</h3>
+            <div class="genre">Isekai • Fantasy</div>
+            <div class="rating">⭐ 9.5/10 — Rimuru terkuat 🫧</div>
+          </div>
+        </div>
+
+        <div class="anime-card" data-mal-id="52299" data-nama="Solo Leveling">
+          <div class="poster loading">⚡<br>Solo Leveling</div>
+          <div class="info">
+            <h3>Solo Leveling</h3>
+            <div class="genre">Action • Fantasy</div>
+            <div class="rating">⭐ 9.5/10 — ARISE! ⚔️</div>
+          </div>
+        </div>
+
+        <div class="anime-card" data-mal-id="38000" data-nama="Demon Slayer">
+          <div class="poster loading">🔥<br>Demon Slayer</div>
+          <div class="info">
+            <h3>Demon Slayer</h3>
+            <div class="genre">Action • Supernatural</div>
+            <div class="rating">⭐ 9.5/10 — Nichirin menyala 🔥</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== GAME / MOBILE LEGENDS ====== -->
+  <section id="game">
+    <div class="container">
+      <h2 class="judul">Game <span>Favorit</span> 🎮</h2>
+      <p class="sub-judul">// push rank dulu, tidur belakangan</p>
+      <div class="ml-card">
+        <div class="ml-logo">MOBILE <span>LEGENDS</span></div>
+        <div class="ml-sub">BANG BANG!</div>
+
+        <!-- Data akun: skip dulu, isi belakangan -->
+        <div class="ml-grid">
+          <div class="ml-stat">
+            <div class="nilai">[Mythic]</div>
+            <div class="label">Rank Sekarang</div>
+          </div>
+          <div class="ml-stat">
+            <div class="nilai">[Assassin]</div>
+            <div class="label">Role Favorit</div>
+          </div>
+          <div class="ml-stat">
+            <div class="nilai">[1500+]</div>
+            <div class="label">Total Match</div>
+          </div>
+          <div class="ml-stat">
+            <div class="nilai">[52%]</div>
+            <div class="label">Winrate</div>
+          </div>
+        </div>
+
+        <div class="hero-pills">
+          <span class="pill">⚔️ [Lancelot]</span>
+          <span class="pill">🗡️ [Gusion]</span>
+          <span class="pill">🪄 [Kagura]</span>
+        </div>
+
+        <p style="margin-top:22px; color:var(--teks-redup); font-size:14px; font-style:italic;">
+          "Satu match lagi... kataku 4 jam yang lalu" 🙃
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PLAYLIST (SPOTIFY) ====== -->
+  <section id="playlist" style="background:rgba(19,19,36,.72);">
+    <div class="container">
+      <h2 class="judul">My <span>Playlist</span> 🎧</h2>
+      <p class="sub-judul">// lagu yang nemenin aku ngangkut kabel & begadang</p>
+
+      <div style="max-width: 650px; margin: 0 auto;">
+        <iframe style="border-radius:16px"
+          src="https://open.spotify.com/embed/playlist/46B9DcRG9FtwnrmGkwdY3q?utm_source=generator&theme=0"
+          width="100%"
+          height="552"
+          frameborder="0"
+          allowfullscreen=""
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy">
+        </iframe>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ====== KEHIDUPAN SEHARI-HARI ====== -->
+  <section id="harian">
+    <div class="container">
+      <h2 class="judul">Daily <span>Routine</span> ⏰</h2>
+      <p class="sub-judul">// gambaran kehidupan sehari-hariku</p>
+      <div class="rutinitas">
+        <div class="waktu-item">
+          <div class="jam">07.00</div>
+          <div class="kegiatan">
+            <h4>☕ Bangun & Sarapan</h4>
+            <p>Ngopi dulu biar otak nyala.</p>
+          </div>
+        </div>
+        <div class="waktu-item">
+          <div class="jam">08.00</div>
+          <div class="kegiatan">
+            <h4>📶 Mulai Kerja</h4>
+            <p>Berangkat pasang & perbaiki WiFi pelanggan.</p>
+          </div>
+        </div>
+        <div class="waktu-item">
+          <div class="jam">17.00</div>
+          <div class="kegiatan">
+            <h4>🏠 Pulang & Rehat</h4>
+            <p>Mandi, makan, rebahan sebentar.</p>
+          </div>
+        </div>
+        <div class="waktu-item">
+          <div class="jam">19.00</div>
+          <div class="kegiatan">
+            <h4>🎌 Marathon Anime</h4>
+            <p>Nonton episode baru minggu ini sambil cemilan.</p>
+          </div>
+        </div>
+        <div class="waktu-item">
+          <div class="jam">21.00</div>
+          <div class="kegiatan">
+            <h4>🎮 Push Rank ML</h4>
+            <p>MnM dulu, terus ranked. Kalah? "Terakhir beneran ini."</p>
+          </div>
+        </div>
+        <div class="waktu-item">
+          <div class="jam">23.00</div>
+          <div class="kegiatan">
+            <h4>🎧 Dengerin Playlist</h4>
+            <p>Headphone dipasang, playlist di-shuffle, sambil scrolling.</p>
+          </div>
+        </div>
+        <div class="waktu-item">
+          <div class="jam">00.00</div>
+          <div class="kegiatan">
+            <h4>😴 Tidur... (biasanya)</h4>
+            <p>Niat tidur jam 12, kenyataannya jam 2 karena "satu episode lagi" 🙃</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== KONTAK ====== -->
+  <section id="kontak" style="background:rgba(19,19,36,.72);">
+    <div class="container kontak">
+      <h2 class="judul">Let's <span>Connect!</span> 🤙</h2>
+      <p class="sub-judul">// butuh teknisi wifi? mau mabar? kapan aja</p>
+      <div class="sosmed-row">
+        <a class="sosmed" href="https://wa.me/628xxxxxxxxxx">💬 WhatsApp</a>
+        <a class="sosmed" href="https://instagram.com/desnal_aja">📸 Instagram</a>
+        <a class="sosmed" href="https://open.spotify.com/playlist/46B9DcRG9FtwnrmGkwdY3q">🎵 Spotify</a>
+        <a class="sosmed" href="https://myanimelist.net/profile/usernamekamu">🎌 MyAnimeList</a>
+        <a class="sosmed" href="mailto:emailkamu@gmail.com">📧 Email</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © 2025 <span>DeszShikii</span> — uptime 99.9%, dibangun dengan kopi & sinyal stabil ☕📶
+  </footer>
+
+  <script>
+    // Menu HP
+    function toggleMenu() {
+      document.getElementById('menu').classList.toggle('aktif');
+    }
+    document.querySelectorAll('.menu a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.getElementById('menu').classList.remove('aktif');
+      });
+    });
+
+    function tunggu(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // ====== BOOT SCREEN ======
+    const barisBoot = [
+      '> BOOTING PORTOFOLIO.EXE',
+      '> memuat modul WiFi ......... [OK]',
+      '> memuat 5 anime favorit .... [OK]',
+      '> memuat playlist ........... [OK]',
+      '> koneksi terjalin — selamat datang_'
+    ];
+
+    function jalankanBoot() {
+      const el = document.getElementById('boot-teks');
+      const layar = document.getElementById('boot-screen');
+      if (!layar) return;
+      let selesai = false;
+      const akhiri = () => {
+        if (selesai) return;
+        selesai = true;
+        layar.classList.add('selesai');
+        setTimeout(() => layar.remove(), 700);
+      };
+      layar.addEventListener('click', akhiri);
+      (async () => {
+        for (const b of barisBoot) {
+          if (selesai) return;
+          const div = document.createElement('div');
+          div.textContent = b;
+          el.appendChild(div);
+          await tunggu(320);
+        }
+        await tunggu(700);
+        akhiri();
+      })();
+    }
+
+    // Boot hanya muncul sekali per sesi tab — biar nggak nunggu terus saat testing.
+    // (Hapus blok if ini & ganti dengan `jalankanBoot();` jika mau muncul setiap refresh)
+    if (sessionStorage.getItem('bootUdah')) {
+      const layar = document.getElementById('boot-screen');
+      if (layar) layar.remove();
+    } else {
+      sessionStorage.setItem('bootUdah', '1');
+      jalankanBoot();
+    }
+
+    // ====== MATRIX CODE RAIN (SAMAR) ======
+    function buatMatriks() {
+      const canvas = document.getElementById('matriks');
+      const ctx = canvas.getContext('2d');
+      const karakter = '01ｱｲｳｴｵｶｷｸｹｺ<>{}#$*+=';
+      let tetesan = [];
+
+      function sesuaikan() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const jmlKolom = Math.max(6, Math.floor(canvas.width / 34));
+        tetesan = Array.from({ length: jmlKolom }, (_, i) => ({
+          x: i * 34 + 8,
+          y: Math.random() * -canvas.height,
+          kecepatan: Math.random() * 1.2 + 0.6,
+          panjang: Math.floor(Math.random() * 7) + 4,
+          chars: Array.from({ length: 12 }, () => karakter[Math.floor(Math.random() * karakter.length)])
+        }));
+      }
+      window.addEventListener('resize', sesuaikan);
+      sesuaikan();
+
+      function animasi() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = '12px monospace';
+        for (const t of tetesan) {
+          for (let j = 0; j < t.panjang; j++) {
+            const y = t.y - j * 15;
+            if (y < -15 || y > canvas.height) continue;
+            const alpha = (1 - j / t.panjang) * 0.35; // samar biar nggak ganggu konten
+            ctx.fillStyle = 'rgba(74, 222, 128,' + alpha.toFixed(2) + ')';
+            ctx.fillText(t.chars[j], t.x, y);
+          }
+          t.y += t.kecepatan;
+          if (Math.random() < 0.05) {
+            t.chars[Math.floor(Math.random() * t.chars.length)] =
+              karakter[Math.floor(Math.random() * karakter.length)];
+          }
+          if (t.y - t.panjang * 15 > canvas.height) {
+            t.y = Math.random() * -200;
+            t.kecepatan = Math.random() * 1.2 + 0.6;
+          }
+        }
+        requestAnimationFrame(animasi);
+      }
+      animasi();
+    }
+    buatMatriks();
+
+    // ====== BINTANG BERKELAP-KELIP ======
+    function buatLangit() {
+      const canvas = document.getElementById('langit');
+      const ctx = canvas.getContext('2d');
+      let bintang = [];
+
+      function sesuaikanUkuran() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', sesuaikanUkuran);
+      sesuaikanUkuran();
+
+      const jumlah = Math.floor((canvas.width * canvas.height) / 9000);
+      for (let i = 0; i < jumlah; i++) {
+        bintang.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 1.4 + 0.3,
+          fase: Math.random() * Math.PI * 2,
+          kecepatan: Math.random() * 0.02 + 0.005
+        });
+      }
+
+      function animasi() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const s of bintang) {
+          s.fase += s.kecepatan;
+          const alpha = Math.abs(Math.sin(s.fase)) * 0.65 + 0.1;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(226, 232, 240, ' + alpha + ')';
+          ctx.fill();
+        }
+        requestAnimationFrame(animasi);
+      }
+      animasi();
+    }
+    buatLangit();
+
+    // ====== BINTANG JATUH ======
+    function bintangJatuh() {
+      const b = document.createElement('div');
+      b.className = 'bintang-jatuh';
+      b.style.left = (window.innerWidth * 0.3 + Math.random() * window.innerWidth * 0.6) + 'px';
+      b.style.top  = (Math.random() * window.innerHeight * 0.3) + 'px';
+      document.body.appendChild(b);
+      setTimeout(() => b.remove(), 1400);
+      setTimeout(bintangJatuh, Math.random() * 5000 + 4000);
+    }
+    setTimeout(bintangJatuh, 2000);
+
+    // ====== POSTER ANIME DARI MYANIMELIST ======
+    async function muatPosterAnime() {
+      const kartu = document.querySelectorAll('.anime-card');
+      for (const card of kartu) {
+        const id = card.dataset.malId;
+        const nama = card.dataset.nama;
+        const poster = card.querySelector('.poster');
+
+        try {
+          const res = await fetch('https://api.jikan.moe/v4/anime/' + id);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+
+          const data = await res.json();
+          const urlPoster = data?.data?.images?.jpg?.large_image_url;
+          if (!urlPoster) throw new Error('Poster tidak ditemukan');
+
+          const img = new Image();
+          img.alt = nama;
+          img.className = 'poster-img';
+          img.onload = () => {
+            poster.innerHTML = '';
+            poster.classList.remove('loading');
+            poster.appendChild(img);
+          };
+          img.onerror = () => poster.classList.remove('loading');
+          img.src = urlPoster;
+
+        } catch (e) {
+          poster.classList.remove('loading');
+        }
+
+        await tunggu(900);
+      }
+    }
+    muatPosterAnime();
+
+    // ====== PARTIKEL EMAS & CYAN DI KARTU ML ======
+    function buatPartikelML() {
+      const kartu = document.querySelector('.ml-card');
+      if (!kartu) return;
+
+      const jumlah = 18;
+      for (let i = 0; i < jumlah; i++) {
+        const p = document.createElement('span');
+        p.className = 'partikel';
+
+        const ukuran = Math.random() * 3 + 2;
+        p.style.width  = ukuran + 'px';
+        p.style.height = ukuran + 'px';
+        p.style.left   = Math.random() * 100 + '%';
+
+        p.style.background = Math.random() > 0.4 ? 'var(--ml-gold)' : 'var(--neon-cyan)';
+
+        p.style.animationDuration = (Math.random() * 4 + 4) + 's';
+        p.style.animationDelay    = -(Math.random() * 8) + 's';
+
+        kartu.appendChild(p);
+      }
+    }
+    buatPartikelML();
+
+    // ====== TERMINAL AUTO-TYPING ======
+    const isiTerminal = [
+      { cmd: 'whoami', out: ['teknisi_wifi.exe — otaku sejak lahir 🎌'] },
+      { cmd: 'ping anime-server', out: ['Reply from 2D-world: time=4ms', 'Reply from 2D-world: time=3ms', 'Koneksi stabil ✅ siap marathon'] },
+      { cmd: 'npm run daily-life', out: ['> kerja ☀️', '> anime 📺', '> mlbb 🎮', '> musik 🎧', '✔ hidup seimbang 100%'] },
+      { cmd: 'sudo temui-aku', out: ['Akses diberikan — scroll ke bawah ↓'] }
+    ];
+
+    async function jalankanTerminal() {
+      const box = document.getElementById('terminal-isi');
+      if (!box) return;
+      let idx = 0;
+      while (true) {
+        const item = isiTerminal[idx % isiTerminal.length];
+
+        // ketik perintah huruf demi huruf
+        const barisCmd = document.createElement('div');
+        barisCmd.className = 'perintah';
+        box.appendChild(barisCmd);
+        const teks = '> ' + item.cmd;
+        for (let c = 1; c <= teks.length; c++) {
+          barisCmd.textContent = teks.slice(0, c);
+          await tunggu(50);
+        }
+        await tunggu(350);
+
+        // tampilkan output baris demi baris
+        for (const o of item.out) {
+          const baris = document.createElement('div');
+          baris.className = 'output';
+          baris.textContent = o;
+          box.appendChild(baris);
+          await tunggu(280);
+        }
+
+        idx++;
+        await tunggu(1800);
+        box.innerHTML = '';
+      }
+    }
+    jalankanTerminal();
+
+    // ====== ANGKA PING BERGERAK SENDIRI ======
+    setInterval(() => {
+      const el = document.getElementById('ping-nilai');
+      if (el) el.textContent = (Math.floor(Math.random() * 14) + 8) + ' ms';
+    }, 2000);
+  </script>
+
+</body>
+</html>
